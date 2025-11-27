@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloader TikTok Mandiri (Gratis)</title>
+    <style>
+        /* CSS Sederhana */
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; text-align: center; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); width: 90%; max-width: 500px; }
+        h1 { color: #25f4ee; margin-bottom: 20px; }
+        #tiktokUrl { width: 100%; padding: 14px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        #downloadButton { background-color: #25f4ee; color: black; padding: 14px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: background-color 0.3s; }
+        #downloadButton:disabled { background-color: #ccc; cursor: not-allowed; }
+        #resultArea { margin-top: 25px; padding: 15px; background-color: #e8fffb; border: 1px solid #25f4ee; border-radius: 8px; min-height: 50px; text-align: left; word-wrap: break-word; }
+        .warning { color: red; margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⬇️ Pengunduh TikTok Sendiri (Gratis)</h1>
+        <p>Masukkan link TikTok Anda, dan dapatkan tautan unduhan tanpa *watermark*.</p>
+
+        <input type="text" id="tiktokUrl" placeholder="Tempel link TikTok di sini..." required>
+        <button id="downloadButton">Unduh Video</button>
+        
+        <div id="resultArea">
+            </div>
+        <div class="warning">
+            ⚠️ Layanan ini bergantung pada API gratis. Bisa rusak kapan saja!
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadButton').addEventListener('click', async function() {
+            const url = document.getElementById('tiktokUrl').value.trim();
+            const resultArea = document.getElementById('resultArea');
+            const button = document.getElementById('downloadButton');
+
+            if (url === "") {
+                resultArea.innerHTML = '⚠️ Harap masukkan tautan video TikTok.';
+                return;
+            }
+
+            resultArea.innerHTML = '⏳ **Memproses...** Harap tunggu.';
+            button.disabled = true;
+
+            try {
+                // Panggil serverless function Anda di endpoint /api/download
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoUrl: url })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.downloadLink) {
+                    resultArea.innerHTML = `✅ **Video siap diunduh!**<br><a href="${data.downloadLink}" target="_blank" download>Klik di sini untuk Mengunduh Video</a>`;
+                } else {
+                    resultArea.innerHTML = `❌ **Gagal:** ${data.message || 'API pihak ketiga tidak merespons atau rusak.'}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultArea.innerHTML = '❌ **Terjadi kesalahan jaringan/server.** Pastikan *serverless function* Anda aktif.';
+            } finally {
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
